@@ -1,0 +1,16 @@
+--- DYNAMIC TRAFFIC FLOW MODEL ---
+
+Steady-State Traffic Flows (veh/hr):
+x1 = 285.00
+x2 = 113.25
+x3 = 79.27
+x4 = 241.53
+
+Eigenvalues of A:
+    0.6000
+    0.7980
+    0.4020
+    0.6000
+
+Spectral Radius = 0.7980
+----------------------------------
