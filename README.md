@@ -1,36 +1,44 @@
-# 🚦 Traffic Flow Modeling Using Linear Algebra & State-Space Analysis
+<div align="center">
 
-![MATLAB](https://img.shields.io/badge/MATLAB-R2021a%2B-orange?logo=mathworks)
-![License](https://img.shields.io/badge/License-MIT-blue)
-![Status](https://img.shields.io/badge/Status-Complete-brightgreen)
+# 🚦 Traffic Flow Modeling
+### Linear Algebra & Discrete-Time State-Space Analysis
 
-> A four-junction traffic network modeled using conservation laws, linear algebra, and discrete-time state-space analysis — with eigenvalue-based stability verification.
+[![MATLAB](https://img.shields.io/badge/MATLAB-R2021a%2B-orange?logo=mathworks&logoColor=white)](https://www.mathworks.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue?logo=open-source-initiative&logoColor=white)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Complete-brightgreen?logo=checkmarx&logoColor=white)]()
+[![Method](https://img.shields.io/badge/Method-State--Space-purple)]()
+
+*A four-junction traffic network modeled using conservation laws, rank-deficient linear algebra, behavioral turning constraints, and discrete-time state-space dynamics — verified via eigenvalue stability.*
+
+</div>
 
 ---
 
 ## 📌 Overview
 
-This project models steady-state and dynamic traffic flow across a four-junction road network. It covers:
+This project models both **steady-state** and **dynamic** traffic flow across a four-junction road network. It covers:
 
-- ✔ Conservation of vehicles at each junction
-- ✔ Linear algebraic formulation (`AX = B`)
-- ✔ Behavioral turning ratio constraint to resolve rank deficiency
-- ✔ Discrete-time state-space modeling for dynamic adaptation
-- ✔ Eigenvalue-based stability analysis (spectral radius criterion)
+| # | Topic | Method |
+|---|-------|--------|
+| 1 | Conservation of vehicles at each junction | Flow balance equations |
+| 2 | Linear algebraic formulation | `AX = B` matrix system |
+| 3 | Resolving rank deficiency | Behavioral turning ratio constraint |
+| 4 | Dynamic driver adaptation | Discrete-time state-space model |
+| 5 | Convergence verification | Eigenvalue / spectral radius analysis |
 
 ---
 
 ## 🗺️ Network Layout
 
-The network consists of four junctions (A, B, C, D) with internal flows `x₁, x₂, x₃, x₄` and fixed external inflows/outflows at each node.
+The network consists of four junctions **A, B, C, D** with internal flows $x_1, x_2, x_3, x_4$ and fixed external inflows/outflows at each node.
 
-```
-        [A] ──x₁──▶ [B]
-         ▲              │
-         x₄            x₂
-         │              ▼
-        [D] ◀──x₃── [C]
-```
+<div align="center">
+
+![Traffic Flow Network](results/Problem.png)
+
+</div>
+
+> **External flows (veh/hr):** Node A receives 350 ↓ and 125 →; Node B exits 255 ↑ and 400 →; Node C receives 800 → and 250 ↑; Node D exits 300 ← and 600 ↓
 
 ---
 
@@ -40,147 +48,123 @@ The network consists of four junctions (A, B, C, D) with internal flows `x₁, x
 
 At steady state: **Flow In = Flow Out** at every junction.
 
-| Node | Equation              |
-|------|-----------------------|
-| A    | x₁ + x₄ = 475        |
-| B    | x₁ + x₂ = 655        |
-| C    | x₂ + x₃ = 1050       |
-| D    | x₃ + x₄ = 870        |
+| Node | Inflow | Outflow | Equation |
+|------|--------|---------|----------|
+| A | 350 + 125 + x₄ | x₁ | `x₁ − x₄ = 475` |
+| B | x₁ | 255 + 400 + x₂ | `x₁ − x₂ = 655` |
+| C | 800 + 250 + x₂ | x₃ | `x₂ − x₃ = −1050` |
+| D | x₃ | 300 + 600 + x₄ | `x₃ − x₄ = 870` |
 
-### Matrix Formulation
-The system is written in compact form:
+### Matrix Formulation — `AX = B`
 
-AX = B
+$$
+\underbrace{\begin{bmatrix} 1 & 0 & 0 & 1 \\ 1 & 1 & 0 & 0 \\ 0 & 1 & 1 & 0 \\ 0 & 0 & 1 & 1 \end{bmatrix}}_{\mathbf{A}}
+\underbrace{\begin{bmatrix} x_1 \\ x_2 \\ x_3 \\ x_4 \end{bmatrix}}_{\mathbf{X}}
+=
+\underbrace{\begin{bmatrix} 475 \\ 655 \\ 1050 \\ 870 \end{bmatrix}}_{\mathbf{B}}
+$$
 
-Where
-
-A =
-\[
-\begin{bmatrix}
-1 & 0 & 0 & 1 \\
-1 & 1 & 0 & 0 \\
-0 & 1 & 1 & 0 \\
-0 & 0 & 1 & 1
-\end{bmatrix}
-\]
-
-B =
-\[
-\begin{bmatrix}
-475 \\
-655 \\
-1050 \\
-870
-\end{bmatrix}
-\]
-
-Since `rank(A) = 3 < 4`, the system is rank deficient and has infinitely many solutions without an additional constraint.
+> ⚠️ `rank(A) = 3 < 4` — the system is **rank deficient** and has infinitely many solutions. An additional constraint is required.
 
 ### Turning Ratio Constraint
 
-At node A, drivers split according to:
+At node A, driver behavior is captured by the splitting ratio:
 
-x₁ / x₄ = 3 / 2
+$$\frac{x_1}{x_4} = \frac{3}{2}$$
 
-This behavioral constraint closes the system and yields a unique solution.
+This constraint encodes real driver behavior and closes the system uniquely.
 
 ### ✅ Static Solution
 
-| Flow | Value (veh/hr) |
-|------|----------------|
-| x₁   | 285            |
-| x₂   | 370            |
-| x₃   | 680            |
-| x₄   | 190            |
+| Flow | Value (veh/hr) | Status |
+|------|:--------------:|--------|
+| $x_1$ | **285** | ✔ Non-negative |
+| $x_2$ | **370** | ✔ Non-negative |
+| $x_3$ | **680** | ✔ Non-negative |
+| $x_4$ | **190** | ✔ Non-negative |
 
-- ✔ Non-negative flows
-- ✔ Satisfies all conservation equations
-- ✔ Unique feasible solution
+All conservation equations satisfied. Solution is unique given the turning ratio constraint.
 
 ---
 
 ## 📘 Part II — Dynamic Traffic Flow Model
 
-The static model assumes instantaneous equilibrium. To model gradual driver adaptation, a discrete-time state-space system is used.
+The static model assumes instantaneous equilibrium. To capture **gradual driver adaptation**, a discrete-time state-space system is used.
 
-### Dynamic Equation
+### State-Space Equation
 
-The system evolves as:
+$$\mathbf{X}(k+1) = \underbrace{\left[(1-\alpha)\mathbf{I} + \alpha\mathbf{P}\right]}_{\mathbf{A}_d} \mathbf{X}(k) + \alpha\mathbf{U}$$
 
-X(k+1) = [(1 − α)I + αP] X(k) + αU
-
-Where:
-
-- α ∈ (0,1) is the relaxation parameter  
-- P is the routing matrix  
-- U is the external inflow vector  
-
----
+| Symbol | Description |
+|--------|-------------|
+| $\alpha \in (0,1)$ | Relaxation parameter — controls adaptation speed |
+| $\mathbf{P}$ | Routing matrix — encodes driver turning fractions |
+| $\mathbf{U}$ | External inflow vector |
+| $\mathbf{A}_d$ | Discrete-time state matrix |
 
 ### Model Parameters
 
-**Relaxation parameter:** `α = 0.4`
+**Relaxation parameter:** $\alpha = 0.4$
 
 **Routing matrix:**
-\[
-P =
+
+$$
+\mathbf{P} =
 \begin{bmatrix}
 0 & 0 & 0 & 0 \\
-0.3 & 0 & 0.35 & 0 \\
-0 & 0.7 & 0 & 0 \\
+0.30 & 0 & 0.35 & 0 \\
+0 & 0.70 & 0 & 0 \\
 0 & 0 & 0.65 & 0
 \end{bmatrix}
-\]
-
-External inflow:
-
-\[
-U =
-\begin{bmatrix}
-285 \\
-0 \\
-0 \\
-190
-\end{bmatrix}
-\]
-
+\qquad
+\mathbf{U} =
+\begin{bmatrix} 285 \\ 0 \\ 0 \\ 190 \end{bmatrix}
+$$
 
 ### ✅ Dynamic Steady-State Solution
 
 | Flow | Value (veh/hr) |
-|------|----------------|
-| x₁   | 285.00         |
-| x₂   | 161.13         |
-| x₃   | 112.79         |
-| x₄   | 263.31         |
+|------|:--------------:|
+| $x_1$ | **285.00** |
+| $x_2$ | **161.13** |
+| $x_3$ | **112.79** |
+| $x_4$ | **263.31** |
 
-### 📊 Stability Analysis
+---
 
-| Eigenvalue | Value |
-|------------|-------|
-| λ₁         | 0.600 |
-| λ₂         | 0.600 |
-| λ₃         | 0.874 |
-| λ₄         | 0.326 |
+## 📊 Stability Analysis
 
-Spectral radius:
+Asymptotic stability is verified by checking that all eigenvalues of $\mathbf{A}_d$ lie strictly inside the unit circle.
 
-ρ(A_d) = 0.874 < 1
+| Eigenvalue | Value | $ \|\lambda_i\| < 1 $ |
+|-----------|:-----:|:---:|
+| $\lambda_1$ | 0.600 | ✅ |
+| $\lambda_2$ | 0.600 | ✅ |
+| $\lambda_3$ | **0.874** | ✅ |
+| $\lambda_4$ | 0.326 | ✅ |
 
-Since all eigenvalues satisfy |λᵢ| < 1:
+$$\rho(\mathbf{A}_d) = \max_i |\lambda_i| = 0.874 < 1$$
 
-✔ The system is asymptotically stable  
-✔ Disturbances decay over time  
-✔ The network converges to equilibrium for any initial condition  
-
+> ✅ **The system is asymptotically stable.** All disturbances decay over time. The network converges to equilibrium for any initial condition.
 
 ---
 
 ## 📈 Convergence Simulation
 
-The simulation initializes flows at zero and iterates the state-space equation until convergence. All four flows smoothly reach their steady-state values within ~30 time steps.
+The simulation initializes all flows at zero and iterates the state-space equation until convergence. All four flows smoothly reach their steady-state values within approximately **30 time steps**.
 
-> 📷 *Convergence plot saved to `results/convergence_plot.png`*
+<div align="center">
+
+![Convergence Plot](results/Convergence_output.png)
+
+</div>
+
+| Flow | Initial | Steady-State | Behaviour |
+|------|:-------:|:------------:|-----------|
+| $x_1$ (blue) | ~170 | 285 | Monotone rise |
+| $x_2$ (red) | ~170 | 161 | Rapid decay to equilibrium |
+| $x_3$ (yellow) | ~235 | 113 | Sharp decay |
+| $x_4$ (purple) | ~245 | 263 | Overshoot then settle |
 
 ---
 
@@ -189,19 +173,17 @@ The simulation initializes flows at zero and iterates the state-space equation u
 Clone the repository and run each script in MATLAB:
 
 ```matlab
-% Step 1 — Solve static model
+% Step 1 — Solve static model (Part I)
 static_model
 
-% Step 2 — Solve dynamic model and compute eigenvalues
+% Step 2 — Solve dynamic model + eigenvalue analysis (Part II)
 dynamic_model
 
-% Step 3 — Simulate and plot convergence
+% Step 3 — Simulate convergence and generate plot
 convergence_simulation
 ```
 
-Results are printed to the MATLAB command window. The convergence plot renders automatically.
-
-> **Requirements:** MATLAB R2021a or later (no additional toolboxes required).
+> **Requirements:** MATLAB R2021a or later. No additional toolboxes required.
 
 ---
 
@@ -210,13 +192,13 @@ Results are printed to the MATLAB command window. The convergence plot renders a
 ```
 Traffic-Flow-Model/
 │
-├── static_model.m            # Part I: Linear system + turning ratio constraint
-├── dynamic_model.m           # Part II: State-space formulation + eigenanalysis
-├── convergence_simulation.m  # Iterative simulation + convergence plot
+├── static_model.m             # Part I: Linear system + turning ratio constraint
+├── dynamic_model.m            # Part II: State-space formulation + eigenanalysis
+├── convergence_simulation.m   # Iterative simulation + convergence plot
 │
 ├── results/
-│   ├── problem.png           # Network diagram
-│   └── convergence_plot.png  # Simulation output
+│   ├── Problem.png            # Network diagram (problem statement)
+│   └── Convergence_output.png # Simulation convergence plot
 │
 ├── LICENSE
 └── README.md
@@ -227,23 +209,23 @@ Traffic-Flow-Model/
 ## 🧠 Key Insights
 
 **Static Model**
-- The node-balance system is rank deficient; a turning ratio constraint is required to obtain a unique solution.
-- The constraint encodes driver behavior and is physically motivated.
+- The node-balance system is rank deficient — a turning ratio constraint is required to obtain a unique solution.
+- The constraint encodes real driver behavior and is physically motivated, not arbitrary.
 
 **Dynamic Model**
-- Captures the gradual redistribution of traffic as drivers adapt over time.
-- The relaxation parameter `α` controls convergence speed — larger `α` means faster but potentially less stable adaptation.
-- The spectral radius `ρ(Aᵈ) < 1` guarantees asymptotic stability for all `α ∈ (0, 1)` with this routing matrix.
+- Captures the gradual redistribution of traffic as drivers adapt over successive time steps.
+- The relaxation parameter $\alpha$ controls convergence speed — larger $\alpha$ yields faster but potentially more oscillatory adaptation.
+- The spectral radius $\rho(\mathbf{A}_d) < 1$ guarantees asymptotic stability for all $\alpha \in (0,1)$ with this routing matrix.
 
 ---
 
 ## 🚀 Future Work
 
-- Capacity-constrained optimization (link flow upper bounds)
-- Nonlinear congestion modeling (e.g., BPR function)
-- Sensitivity analysis of `α` on convergence rate
-- Continuous-time formulation via ODEs
-- Validation against real-world traffic count data
+- [ ] Capacity-constrained optimization (link flow upper bounds)
+- [ ] Nonlinear congestion modeling via BPR function
+- [ ] Sensitivity analysis of $\alpha$ on convergence rate and overshoot
+- [ ] Continuous-time formulation via ODEs
+- [ ] Validation against real-world traffic count data
 
 ---
 
