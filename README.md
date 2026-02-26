@@ -49,9 +49,9 @@ At steady state: **Flow In = Flow Out** at every junction.
 
 ### Matrix Formulation
 
-$$AX = B$$
+![AX=B](https://latex.codecogs.com/png.image?\dpi{120}AX=B)
 
-$$A = \begin{bmatrix} 1 & 0 & 0 & 1 \\ 1 & 1 & 0 & 0 \\ 0 & 1 & 1 & 0 \\ 0 & 0 & 1 & 1 \end{bmatrix}, \quad B = \begin{bmatrix} 475 \\ 655 \\ 1050 \\ 870 \end{bmatrix}$$
+![A and B](https://latex.codecogs.com/png.image?\dpi{120}A=\begin{bmatrix}1&0&0&1\\1&1&0&0\\0&1&1&0\\0&0&1&1\end{bmatrix},\quad%20B=\begin{bmatrix}475\\655\\1050\\870\end{bmatrix})
 
 Since `rank(A) = 3 < 4`, the system is rank deficient and has infinitely many solutions without an additional constraint.
 
@@ -59,7 +59,7 @@ Since `rank(A) = 3 < 4`, the system is rank deficient and has infinitely many so
 
 At node A, drivers split according to:
 
-$$\frac{x_1}{x_4} = \frac{3}{2}$$
+![Turning ratio](https://latex.codecogs.com/png.image?\dpi{120}\frac{x_1}{x_4}=\frac{3}{2})
 
 This behavioral constraint closes the system and yields a unique solution.
 
@@ -84,7 +84,7 @@ The static model assumes instantaneous equilibrium. To model gradual driver adap
 
 ### Dynamic Equation
 
-$$X(k+1) = \underbrace{[(1-\alpha)I + \alpha P]}_{A_d} \, X(k) + \alpha U$$
+![Dynamic equation](https://latex.codecogs.com/png.image?\dpi{120}X(k+1)=\left[(1-\alpha)I+\alpha%20P\right]X(k)+\alpha%20U)
 
 ### Model Parameters
 
@@ -92,11 +92,9 @@ $$X(k+1) = \underbrace{[(1-\alpha)I + \alpha P]}_{A_d} \, X(k) + \alpha U$$
 
 **Routing matrix:**
 
-$$P = \begin{bmatrix} 0 & 0 & 0 & 0 \\ 0.3 & 0 & 0.35 & 0 \\ 0 & 0.7 & 0 & 0 \\ 0 & 0 & 0.65 & 0 \end{bmatrix}$$
+![P matrix](https://latex.codecogs.com/png.image?\dpi{120}P=\begin{bmatrix}0&0&0&0\\0.3&0&0.35&0\\0&0.7&0&0\\0&0&0.65&0\end{bmatrix})
 
-**External inflow vector:**
-
-$$U = \begin{bmatrix} 285 \\ 0 \\ 0 \\ 190 \end{bmatrix}$$
+![U vector](https://latex.codecogs.com/png.image?\dpi{120}U=\begin{bmatrix}285\\0\\0\\190\end{bmatrix})
 
 ### ✅ Dynamic Steady-State Solution
 
@@ -116,7 +114,7 @@ $$U = \begin{bmatrix} 285 \\ 0 \\ 0 \\ 190 \end{bmatrix}$$
 | λ₃         | 0.874 |
 | λ₄         | 0.326 |
 
-**Spectral radius:** `ρ(Aᵈ) = 0.874 < 1`
+![Spectral radius](https://latex.codecogs.com/png.image?\dpi{120}\rho(A_d)=0.874<1)
 
 - ✔ Asymptotically stable
 - ✔ All disturbances decay over time
