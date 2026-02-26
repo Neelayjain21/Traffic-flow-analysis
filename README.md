@@ -159,7 +159,7 @@ The simulation initializes all flows at zero and iterates the state-space equati
 
 <div align="center">
 
-![Convergence Plot](results/Convergence_plot.png)
+![Convergence Plot](results/convergence_plot.png)
 
 </div>
 
