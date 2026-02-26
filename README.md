@@ -1,13 +1,13 @@
 🚦 Traffic Flow Modeling Using Linear Algebra and State-Space Analysis
 📌 Project Overview
 
-This project models a four-junction traffic network using:
+This project presents a mathematical modeling framework for a four-junction traffic network using:
 
 Conservation of vehicles
 
 Linear algebraic systems
 
-Behavioral constraints (turning ratios)
+Behavioral turning ratio constraints
 
 Discrete-time state-space modeling
 
@@ -17,15 +17,15 @@ The objective is to:
 
 Determine steady-state traffic flows.
 
-Analyze dynamic redistribution of traffic.
+Analyze dynamic redistribution under driver adaptation.
 
-Evaluate system stability using spectral analysis.
+Evaluate system stability using spectral properties.
 
-This project demonstrates how classical linear systems theory can be applied to traffic network modeling.
+This project demonstrates how classical linear systems theory can be applied to traffic network analysis.
 
 🗺️ Network Description
 
-The network consists of four junctions:
+The traffic network consists of four junctions:
 
 A
 
@@ -47,247 +47,59 @@ x3 : C → D
 
 x4 : A → D
 
+All flows are measured in vehicles per hour (veh/hr).
+
 📘 Part I — Static Traffic Flow Model
 🔹 Governing Principle
 
 Under steady-state conditions:
 
-Flow In
-=
-Flow Out
-Flow In=Flow Out
+Flow In = Flow Out
 
-Applying conservation at each node:
+Applying conservation at each junction:
 
-𝑥
-1
-+
-𝑥
-4
-=
-475
-x
-1
-	​
-
-+x
-4
-	​
-
-=475
-𝑥
-1
-+
-𝑥
-2
-=
-655
-x
-1
-	​
-
-+x
-2
-	​
-
-=655
-𝑥
-2
-+
-𝑥
-3
-=
-1050
-x
-2
-	​
-
-+x
-3
-	​
-
-=1050
-𝑥
-3
-+
-𝑥
-4
-=
-870
-x
-3
-	​
-
-+x
-4
-	​
-
-=870
+x1 + x4 = 475
+x1 + x2 = 655
+x2 + x3 = 1050
+x3 + x4 = 870
 🔹 Matrix Formulation
-𝐴
-𝑋
-=
-𝐵
-AX=B
+
+The system can be written as:
+
+AX = B
 
 Where:
 
-𝐴
-=
-[
-1
-	
-0
-	
-0
-	
-1
+A = [ 1  0  0  1
+      1  1  0  0
+      0  1  1  0
+      0  0  1  1 ]
 
+X = [x1 x2 x3 x4]^T
 
-1
-	
-1
-	
-0
-	
-0
+The matrix is rank deficient:
 
+rank(A) = 3 < 4
 
-0
-	
-1
-	
-1
-	
-0
-
-
-0
-	
-0
-	
-1
-	
-1
-]
-A=
-	​
-
-1
-1
-0
-0
-	​
-
-0
-1
-1
-0
-	​
-
-0
-0
-1
-1
-	​
-
-1
-0
-0
-1
-	​
-
-	​
-
-
-The system is rank deficient:
-
-rank
-(
-𝐴
-)
-=
-3
-<
-4
-rank(A)=3<4
-
-Therefore, an additional behavioral constraint is required.
+Therefore, the system has infinitely many solutions and requires a behavioral constraint.
 
 🔹 Turning Ratio Assumption
 
 At node A:
 
-60% traffic goes to B
+60% of traffic goes to B
 
 40% goes to D
 
-𝑥
-1
-𝑥
-4
-=
-3
-2
-x
-4
-	​
-
-x
-1
-	​
-
-	​
-
-=
-2
-3
-	​
-
+x1 / x4 = 3 / 2
 🔹 Static Solution
-(
-𝑥
-1
-,
-𝑥
-2
-,
-𝑥
-3
-,
-𝑥
-4
-)
-=
-(
-285
-,
-  
-370
-,
-  
-680
-,
-  
-190
-)
-(x
-1
-	​
 
-,x
-2
-	​
+The resulting steady-state flows are:
 
-,x
-3
-	​
-
-,x
-4
-	​
-
-)=(285,370,680,190)
+x1 = 285 veh/hr
+x2 = 370 veh/hr
+x3 = 680 veh/hr
+x4 = 190 veh/hr
 
 All flows:
 
@@ -295,322 +107,60 @@ Are non-negative
 
 Satisfy conservation
 
-Represent feasible equilibrium
+Represent a feasible equilibrium distribution
 
 📘 Part II — Dynamic Traffic Flow Modeling
 
-The static model assumes instantaneous equilibrium. Real traffic adjusts gradually due to driver behavior.
+The static model assumes instantaneous equilibrium.
+To model gradual driver adaptation, a discrete-time state-space formulation is used.
 
-🔹 State-Space Representation
-𝑋
-(
-𝑘
-)
-=
-[
-𝑥
-1
-(
-𝑘
-)
-
-
-𝑥
-2
-(
-𝑘
-)
-
-
-𝑥
-3
-(
-𝑘
-)
-
-
-𝑥
-4
-(
-𝑘
-)
-]
-X(k)=
-	​
-
-x
-1
-	​
-
-(k)
-x
-2
-	​
-
-(k)
-x
-3
-	​
-
-(k)
-x
-4
-	​
-
-(k)
-	​
-
-	​
-
-
-Dynamic evolution:
-
-𝑋
-(
-𝑘
-+
-1
-)
-=
-(
-1
-−
-𝛼
-)
-𝑋
-(
-𝑘
-)
-+
-𝛼
-(
-𝑃
-𝑋
-(
-𝑘
-)
-+
-𝑈
-)
-X(k+1)=(1−α)X(k)+α(PX(k)+U)
+🔹 State Vector
+X(k) = [ x1(k)  x2(k)  x3(k)  x4(k) ]^T
+🔹 Dynamic Evolution Equation
+X(k+1) = (1 - α)X(k) + α(PX(k) + U)
 
 Rewritten as:
 
-𝑋
-(
-𝑘
-+
-1
-)
-=
-𝐴
-𝑋
-(
-𝑘
-)
-+
-𝛼
-𝑈
-X(k+1)=AX(k)+αU
+X(k+1) = AX(k) + αU
 
 Where:
 
-𝐴
-=
-(
-1
-−
-𝛼
-)
-𝐼
-+
-𝛼
-𝑃
-A=(1−α)I+αP
+A = (1 - α)I + αP
 🔹 Model Parameters
 
 Routing matrix:
 
-𝑃
-=
-[
-0
-	
-0
-	
-0
-	
-0
+P = [ 0    0     0     0
+      0.3  0     0.35  0
+      0    0.7   0     0
+      0    0     0.65  0 ]
 
+External inflow:
 
-0.3
-	
-0
-	
-0.35
-	
-0
-
-
-0
-	
-0.7
-	
-0
-	
-0
-
-
-0
-	
-0
-	
-0.65
-	
-0
-]
-P=
-	​
-
-0
-0.3
-0
-0
-	​
-
-0
-0
-0.7
-0
-	​
-
-0
-0.35
-0
-0.65
-	​
-
-0
-0
-0
-0
-	​
-
-	​
-
-
-External inflow vector:
-
-𝑈
-=
-[
-285
-
-
-0
-
-
-0
-
-
-190
-]
-U=
-	​
-
-285
-0
-0
-190
-	​
-
-	​
-
+U = [285  0  0  190]^T
 
 Relaxation parameter:
 
-𝛼
-=
-0.4
-α=0.4
+α = 0.4
 🔹 Steady-State Dynamic Solution
-𝑋
-∗
-=
-(
-𝐼
-−
-𝐴
-)
-−
-1
-𝛼
-𝑈
-X
-∗
-=(I−A)
-−1
-αU
-(
-𝑥
-1
-,
-𝑥
-2
-,
-𝑥
-3
-,
-𝑥
-4
-)
-=
-(
-285
-,
-  
-161.13
-,
-  
-112.79
-,
-  
-263.31
-)
-(x
-1
-	​
 
-,x
-2
-	​
+The long-term equilibrium is obtained from:
 
-,x
-3
-	​
+X* = (I - A)^(-1) αU
 
-,x
-4
-	​
+Result:
 
-)=(285,161.13,112.79,263.31)
+x1 = 285.00
+x2 = 161.13
+x3 = 112.79
+x4 = 263.31
 🔹 Stability Analysis
 
-Stability condition:
+For discrete-time systems, stability requires:
 
-∣
-𝜆
-𝑖
-∣
-<
-1
-∣λ
-i
-	​
+|λ_i| < 1
 
-∣<1
-
-Eigenvalues:
+Eigenvalues of A:
 
 0.600
 0.600
@@ -619,13 +169,7 @@ Eigenvalues:
 
 Spectral radius:
 
-𝜌
-(
-𝐴
-)
-=
-0.874
-ρ(A)=0.874
+ρ(A) = 0.874
 
 Since ρ(A) < 1:
 
