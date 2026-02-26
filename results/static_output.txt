@@ -1,0 +1,8 @@
+--- STATIC TRAFFIC FLOW MODEL ---
+
+Static Traffic Flows (veh/hr):
+x1 (A → B) = 285.00
+x2 (C → B) = 370.00
+x3 (C → D) = 680.00
+x4 (A → D) = 190.00
+----------------------------------
