@@ -30,7 +30,7 @@ This project models both **steady-state** and **dynamic** traffic flow across a 
 
 ## 🗺️ Network Layout
 
-The network consists of four junctions **A, B, C, D** with internal flows $x_1, x_2, x_3, x_4$ and fixed external inflows/outflows at each node.
+The network consists of four junctions **A, B, C, D** with internal flows `x₁, x₂, x₃, x₄` and fixed external inflows/outflows at each node.
 
 <div align="center">
 
@@ -38,7 +38,7 @@ The network consists of four junctions **A, B, C, D** with internal flows $x_1, 
 
 </div>
 
-> **External flows (veh/hr):** Node A receives 350 ↓ and 125 →; Node B exits 255 ↑ and 400 →; Node C receives 800 → and 250 ↑; Node D exits 300 ← and 600 ↓
+> **External flows (veh/hr):** Node A receives 350 ↓ and 125 → &nbsp;|&nbsp; Node B exits 255 ↑ and 400 → &nbsp;|&nbsp; Node C receives 800 → and 250 ↑ &nbsp;|&nbsp; Node D exits 300 ← and 600 ↓
 
 ---
 
@@ -48,21 +48,22 @@ The network consists of four junctions **A, B, C, D** with internal flows $x_1, 
 
 At steady state: **Flow In = Flow Out** at every junction.
 
-| Node | Inflow | Outflow | Equation |
-|------|--------|---------|----------|
-| A | 350 + 125 + x₄ | x₁ | `x₁ − x₄ = 475` |
-| B | x₁ | 255 + 400 + x₂ | `x₁ − x₂ = 655` |
-| C | 800 + 250 + x₂ | x₃ | `x₂ − x₃ = −1050` |
-| D | x₃ | 300 + 600 + x₄ | `x₃ − x₄ = 870` |
+| Node | Equation |
+|:----:|----------|
+| **A** | `x₁ + x₄ = 475` |
+| **B** | `x₁ + x₂ = 655` |
+| **C** | `x₂ + x₃ = 1050` |
+| **D** | `x₃ + x₄ = 870` |
 
 ### Matrix Formulation — `AX = B`
 
-$$
-\underbrace{\begin{bmatrix} 1 & 0 & 0 & 1 \\ 1 & 1 & 0 & 0 \\ 0 & 1 & 1 & 0 \\ 0 & 0 & 1 & 1 \end{bmatrix}}_{\mathbf{A}}
-\underbrace{\begin{bmatrix} x_1 \\ x_2 \\ x_3 \\ x_4 \end{bmatrix}}_{\mathbf{X}}
-=
-\underbrace{\begin{bmatrix} 475 \\ 655 \\ 1050 \\ 870 \end{bmatrix}}_{\mathbf{B}}
-$$
+```
+     A          X       B
+⌈ 1  0  0  1 ⌉ ⌈x₁⌉   ⌈ 475 ⌉
+| 1  1  0  0 | |x₂| = | 655 |
+| 0  1  1  0 | |x₃|   |1050 |
+⌊ 0  0  1  1 ⌋ ⌊x₄⌋   ⌊ 870 ⌋
+```
 
 > ⚠️ `rank(A) = 3 < 4` — the system is **rank deficient** and has infinitely many solutions. An additional constraint is required.
 
@@ -70,18 +71,20 @@ $$
 
 At node A, driver behavior is captured by the splitting ratio:
 
-$$\frac{x_1}{x_4} = \frac{3}{2}$$
+```
+x₁ / x₄ = 3 / 2
+```
 
 This constraint encodes real driver behavior and closes the system uniquely.
 
 ### ✅ Static Solution
 
 | Flow | Value (veh/hr) | Status |
-|------|:--------------:|--------|
-| $x_1$ | **285** | ✔ Non-negative |
-| $x_2$ | **370** | ✔ Non-negative |
-| $x_3$ | **680** | ✔ Non-negative |
-| $x_4$ | **190** | ✔ Non-negative |
+|:----:|:--------------:|--------|
+| `x₁` | **285** | ✔ Non-negative |
+| `x₂` | **370** | ✔ Non-negative |
+| `x₃` | **680** | ✔ Non-negative |
+| `x₄` | **190** | ✔ Non-negative |
 
 All conservation equations satisfied. Solution is unique given the turning ratio constraint.
 
@@ -93,57 +96,58 @@ The static model assumes instantaneous equilibrium. To capture **gradual driver 
 
 ### State-Space Equation
 
-$$\mathbf{X}(k+1) = \underbrace{\left[(1-\alpha)\mathbf{I} + \alpha\mathbf{P}\right]}_{\mathbf{A}_d} \mathbf{X}(k) + \alpha\mathbf{U}$$
+```
+X(k+1) = [ (1 − α)·I  +  α·P ] · X(k)  +  α·U
+           \________________________/
+                      Aᵈ
+```
 
 | Symbol | Description |
 |--------|-------------|
-| $\alpha \in (0,1)$ | Relaxation parameter — controls adaptation speed |
-| $\mathbf{P}$ | Routing matrix — encodes driver turning fractions |
-| $\mathbf{U}$ | External inflow vector |
-| $\mathbf{A}_d$ | Discrete-time state matrix |
+| `α ∈ (0,1)` | Relaxation parameter — controls adaptation speed |
+| `P` | Routing matrix — encodes driver turning fractions |
+| `U` | External inflow vector |
+| `Aᵈ` | Discrete-time state matrix |
 
 ### Model Parameters
 
-**Relaxation parameter:** $\alpha = 0.4$
+**Relaxation parameter:** `α = 0.4`
 
-**Routing matrix:**
+**Routing matrix P and external inflow U:**
 
-$$
-\mathbf{P} =
-\begin{bmatrix}
-0 & 0 & 0 & 0 \\
-0.30 & 0 & 0.35 & 0 \\
-0 & 0.70 & 0 & 0 \\
-0 & 0 & 0.65 & 0
-\end{bmatrix}
-\qquad
-\mathbf{U} =
-\begin{bmatrix} 285 \\ 0 \\ 0 \\ 190 \end{bmatrix}
-$$
+```
+        P                         U
+⌈ 0     0     0     0  ⌉       ⌈285⌉
+| 0.30  0     0.35  0  |       | 0 |
+| 0     0.70  0     0  |       | 0 |
+⌊ 0     0     0.65  0  ⌋       ⌊190⌋
+```
 
 ### ✅ Dynamic Steady-State Solution
 
 | Flow | Value (veh/hr) |
-|------|:--------------:|
-| $x_1$ | **285.00** |
-| $x_2$ | **161.13** |
-| $x_3$ | **112.79** |
-| $x_4$ | **263.31** |
+|:----:|:--------------:|
+| `x₁` | **285.00** |
+| `x₂` | **161.13** |
+| `x₃` | **112.79** |
+| `x₄` | **263.31** |
 
 ---
 
 ## 📊 Stability Analysis
 
-Asymptotic stability is verified by checking that all eigenvalues of $\mathbf{A}_d$ lie strictly inside the unit circle.
+Asymptotic stability is verified by checking that all eigenvalues of `Aᵈ` lie strictly inside the unit circle.
 
-| Eigenvalue | Value | $ \|\lambda_i\| < 1 $ |
-|-----------|:-----:|:---:|
-| $\lambda_1$ | 0.600 | ✅ |
-| $\lambda_2$ | 0.600 | ✅ |
-| $\lambda_3$ | **0.874** | ✅ |
-| $\lambda_4$ | 0.326 | ✅ |
+| Eigenvalue | Value | `\|λᵢ\| < 1` |
+|:----------:|:-----:|:---:|
+| λ₁ | 0.600 | ✅ |
+| λ₂ | 0.600 | ✅ |
+| λ₃ | **0.874** | ✅ ← dominant |
+| λ₄ | 0.326 | ✅ |
 
-$$\rho(\mathbf{A}_d) = \max_i |\lambda_i| = 0.874 < 1$$
+```
+Spectral radius:  ρ(Aᵈ) = max|λᵢ| = 0.874 < 1  ✅
+```
 
 > ✅ **The system is asymptotically stable.** All disturbances decay over time. The network converges to equilibrium for any initial condition.
 
@@ -159,12 +163,12 @@ The simulation initializes all flows at zero and iterates the state-space equati
 
 </div>
 
-| Flow | Initial | Steady-State | Behaviour |
-|------|:-------:|:------------:|-----------|
-| $x_1$ (blue) | ~170 | 285 | Monotone rise |
-| $x_2$ (red) | ~170 | 161 | Rapid decay to equilibrium |
-| $x_3$ (yellow) | ~235 | 113 | Sharp decay |
-| $x_4$ (purple) | ~245 | 263 | Overshoot then settle |
+| Flow | Start | Steady-State | Behaviour |
+|:----:|:-----:|:------------:|-----------|
+| `x₁` (blue)   | ~170 | 285 | Monotone rise to equilibrium |
+| `x₂` (red)    | ~170 | 161 | Rapid decay to equilibrium |
+| `x₃` (yellow) | ~235 | 113 | Sharp monotone decay |
+| `x₄` (purple) | ~245 | 263 | Overshoot then gradual settle |
 
 ---
 
@@ -214,8 +218,8 @@ Traffic-Flow-Model/
 
 **Dynamic Model**
 - Captures the gradual redistribution of traffic as drivers adapt over successive time steps.
-- The relaxation parameter $\alpha$ controls convergence speed — larger $\alpha$ yields faster but potentially more oscillatory adaptation.
-- The spectral radius $\rho(\mathbf{A}_d) < 1$ guarantees asymptotic stability for all $\alpha \in (0,1)$ with this routing matrix.
+- The relaxation parameter `α` controls convergence speed — larger `α` yields faster but potentially more oscillatory adaptation.
+- The spectral radius `ρ(Aᵈ) < 1` guarantees asymptotic stability for all `α ∈ (0,1)` with this routing matrix.
 
 ---
 
@@ -223,7 +227,7 @@ Traffic-Flow-Model/
 
 - [ ] Capacity-constrained optimization (link flow upper bounds)
 - [ ] Nonlinear congestion modeling via BPR function
-- [ ] Sensitivity analysis of $\alpha$ on convergence rate and overshoot
+- [ ] Sensitivity analysis of `α` on convergence rate and overshoot
 - [ ] Continuous-time formulation via ODEs
 - [ ] Validation against real-world traffic count data
 
