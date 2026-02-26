@@ -181,22 +181,6 @@ Since ρ(A) < 1:
 - Traffic flows converge to equilibrium
 - Disturbances decay over time
 
----
-
-# 📂 Repository Structure
-
-Traffic-Flow-Model/
-│
-├── static_model.m
-├── dynamic_model.m
-├── convergence_simulation.m
-├── results/
-│   ├── static_output.txt
-│   ├── dynamic_output.txt
-│   └── convergence_plot.png
-└── README.md
-
----
 
 # 💻 Code Description
 
