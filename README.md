@@ -1,37 +1,34 @@
 # 🚦 Traffic Flow Modeling Using Linear Algebra and State-Space Analysis
 
-## 📖 Overview
-
-This project models a four-junction traffic network using linear algebra and discrete-time state-space analysis.
-
-The objectives are:
-
-- Determine steady-state internal traffic flows
-- Apply behavioral routing (turning ratio) constraints
-- Model gradual traffic redistribution
-- Evaluate stability using eigenvalue analysis
-
-This project demonstrates how classical linear systems theory can be applied to traffic network modeling.
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![MATLAB](https://img.shields.io/badge/MATLAB-Compatible-blue.svg)
+![Status](https://img.shields.io/badge/Project-Academic-success.svg)
 
 ---
 
-## 🗺️ Network Description
+## 📖 Overview
 
-The traffic network consists of four junctions:
+This project models a four-junction traffic network using:
 
-- A
-- B
-- C
-- D
+- Conservation of vehicles  
+- Linear algebraic formulation  
+- Behavioral turning ratio constraint  
+- Discrete-time state-space modeling  
+- Eigenvalue-based stability analysis  
 
-External inflows and outflows are known. Internal road flows are unknown.
+The objective is to:
 
-### Internal Flow Variables (veh/hr)
+1. Compute steady-state internal traffic flows  
+2. Model gradual traffic redistribution  
+3. Evaluate system stability and convergence  
 
-- x1 : A → B
-- x2 : C → B
-- x3 : C → D
-- x4 : A → D
+---
+
+# 🗺️ Traffic Network Layout
+
+<img src="results/network_layout.png" width="600">
+
+> Place your network image inside the `results/` folder as `network_layout.png`
 
 ---
 
@@ -41,32 +38,51 @@ External inflows and outflows are known. Internal road flows are unknown.
 
 At steady state:
 
-Flow In = Flow Out
+\[
+\text{Flow In} = \text{Flow Out}
+\]
 
-Applying conservation at each junction:
+Applying conservation at each node:
 
-x1 + x4 = 475  
-x1 + x2 = 655  
-x2 + x3 = 1050  
-x3 + x4 = 870  
+\[
+x_1 + x_4 = 475
+\]
+
+\[
+x_1 + x_2 = 655
+\]
+
+\[
+x_2 + x_3 = 1050
+\]
+
+\[
+x_3 + x_4 = 870
+\]
 
 ---
 
 ## Matrix Formulation
 
+\[
 AX = B
+\]
 
-Where:
-
-A =  
-[ 1  0  0  1  
-  1  1  0  0  
-  0  1  1  0  
-  0  0  1  1 ]
+\[
+A =
+\begin{bmatrix}
+1 & 0 & 0 & 1 \\
+1 & 1 & 0 & 0 \\
+0 & 1 & 1 & 0 \\
+0 & 0 & 1 & 1
+\end{bmatrix}
+\]
 
 The system is rank deficient:
 
-rank(A) = 3 < 4
+\[
+\text{rank}(A) = 3 < 4
+\]
 
 Therefore, an additional behavioral constraint is required.
 
@@ -76,85 +92,120 @@ Therefore, an additional behavioral constraint is required.
 
 At node A:
 
-- 60% traffic goes to B
-- 40% traffic goes to D
-
-x1 / x4 = 3 / 2
+\[
+\frac{x_1}{x_4} = \frac{3}{2}
+\]
 
 ---
 
 ## Static Solution
 
-x1 = 285 veh/hr  
-x2 = 370 veh/hr  
-x3 = 680 veh/hr  
-x4 = 190 veh/hr  
+\[
+(x_1, x_2, x_3, x_4)
+=
+(285,\; 370,\; 680,\; 190)
+\]
 
 These flows:
 
-- Are non-negative
-- Satisfy conservation
-- Represent feasible steady-state equilibrium
+- Are non-negative  
+- Satisfy conservation  
+- Represent feasible steady-state equilibrium  
+
+---
+
+## 🔗 Static Model Code
+
+👉 **[View static_model.m](static_model.m)**
 
 ---
 
 # 📘 Part II — Dynamic Traffic Flow Modeling
 
 The static model assumes instantaneous equilibrium.  
-To capture gradual driver adaptation, a discrete-time state-space formulation is used.
+To model gradual driver adaptation, a discrete-time state-space formulation is introduced.
 
 ---
 
 ## State Vector
 
-X(k) = [ x1(k)  x2(k)  x3(k)  x4(k) ]ᵀ
+\[
+X(k) =
+\begin{bmatrix}
+x_1(k) \\
+x_2(k) \\
+x_3(k) \\
+x_4(k)
+\end{bmatrix}
+\]
 
 ---
 
 ## Dynamic Evolution Equation
 
-X(k+1) = (1 − α)X(k) + α(PX(k) + U)
+\[
+X(k+1) = (1-\alpha)X(k) + \alpha(PX(k) + U)
+\]
 
 Rewritten as:
 
-X(k+1) = AX(k) + αU
+\[
+X(k+1) = AX(k) + \alpha U
+\]
 
 Where:
 
-A = (1 − α)I + αP
+\[
+A = (1-\alpha)I + \alpha P
+\]
 
 ---
 
 ## Model Parameters
 
+Relaxation parameter:
+
+\[
+\alpha = 0.4
+\]
+
 Routing matrix:
 
-P =  
-[ 0    0     0     0  
-  0.3  0     0.35  0  
-  0    0.7   0     0  
-  0    0     0.65  0 ]
+\[
+P =
+\begin{bmatrix}
+0 & 0 & 0 & 0 \\
+0.3 & 0 & 0.35 & 0 \\
+0 & 0.7 & 0 & 0 \\
+0 & 0 & 0.65 & 0
+\end{bmatrix}
+\]
 
 External inflow:
 
-U = [285  0  0  190]ᵀ
-
-Relaxation parameter:
-
-α = 0.4
+\[
+U =
+\begin{bmatrix}
+285 \\
+0 \\
+0 \\
+190
+\end{bmatrix}
+\]
 
 ---
 
 ## Steady-State Dynamic Solution
 
-X* = (I − A)⁻¹ αU
+\[
+X^* = (I - A)^{-1} \alpha U
+\]
 
-Result:
-
-x1 = 285.00  
-x2 = 161.13  
-x3 = 112.79  
-x4 = 263.31  
+\[
+(x_1, x_2, x_3, x_4)
+=
+(285,\; 161.13,\; 112.79,\; 263.31)
+\]
 
 ---
 
@@ -162,40 +213,50 @@ x4 = 263.31
 
 For discrete-time systems:
 
-|λᵢ| < 1
+\[
+|\lambda_i| < 1
+\]
 
-Eigenvalues of A:
+Eigenvalues:
+0.600
+0.600
+0.874
+0.326
 
-0.600  
-0.600  
-0.874  
-0.326  
 
 Spectral radius:
 
-ρ(A) = 0.874
+\[
+\rho(A) = 0.874
+\]
 
-Since ρ(A) < 1:
+Since \(\rho(A) < 1\):
 
-- The system is asymptotically stable
-- Traffic flows converge to equilibrium
-- Disturbances decay over time
+- The system is asymptotically stable  
+- Traffic flows converge to equilibrium  
+- Disturbances decay over time  
 
+---
 
-# 💻 Code Description
+## 🔗 Dynamic Model Code
 
-static_model.m
-- Solves augmented linear system
-- Computes steady-state flows
+👉 **[View dynamic_model.m](dynamic_model.m)**
 
-dynamic_model.m
-- Builds state-space matrix
-- Computes steady-state dynamic solution
-- Calculates eigenvalues
+---
 
-convergence_simulation.m
-- Simulates traffic redistribution
-- Generates convergence plots
+# 📈 Convergence Simulation
+
+The iterative evolution of traffic flows verifies convergence to equilibrium.
+
+<img src="results/convergence_plot.png" width="600">
+
+> Generated using `convergence_simulation.m`
+
+---
+
+## 🔗 Simulation Code
+
+👉 **[View convergence_simulation.m](convergence_simulation.m)**
 
 ---
 
@@ -203,50 +264,50 @@ convergence_simulation.m
 
 1. Open MATLAB (R2018+ recommended)
 2. Run:
+static_model.m
+dynamic_model.m
+convergence_simulation.m
 
-static_model  
-dynamic_model  
-convergence_simulation  
 
-3. Results will appear in the command window.
-4. Convergence plot will display automatically.
+3. Results will appear in the Command Window  
+4. Convergence plot will be displayed automatically  
 
 ---
 
 # 📊 Key Insights
 
-Static Model
-- Based on conservation laws
-- Requires behavioral constraint
-- Produces unique feasible solution
+### Static Model
+- Based on conservation laws  
+- Requires behavioral constraint  
+- Produces unique feasible solution  
 
-Dynamic Model
-- Captures gradual traffic redistribution
-- Enables eigenvalue-based stability analysis
-- Spectral radius determines convergence rate
-- System naturally converges to equilibrium
+### Dynamic Model
+- Captures gradual redistribution  
+- Enables eigenvalue-based stability analysis  
+- Spectral radius determines convergence rate  
+- System naturally converges  
 
 ---
 
 # 🧠 Assumptions
 
-- Deterministic routing
-- Constant turning probabilities
-- No congestion constraints
-- No stochastic disturbances
+- Deterministic routing  
+- Constant turning probabilities  
+- No congestion constraints  
+- No stochastic disturbances  
 
 ---
 
 # 🚀 Future Work
 
-- Capacity-constrained optimization
-- Nonlinear congestion-dependent routing
-- Sensitivity analysis of α
-- Continuous-time formulation
-- Validation with real traffic data
+- Capacity-constrained optimization  
+- Nonlinear congestion-dependent routing  
+- Sensitivity analysis of α  
+- Continuous-time formulation  
+- Validation with real traffic data  
 
 ---
 
 # 📜 License
 
-This project is intended for academic and educational use.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
