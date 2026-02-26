@@ -1,48 +1,46 @@
-# 🚦 Traffic Flow Modeling Using Linear Algebra and State-Space Analysis
+# 🚦 Traffic Flow Modeling Using Linear Algebra & State-Space Analysis
 
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![MATLAB](https://img.shields.io/badge/MATLAB-Compatible-blue.svg)
-![Status](https://img.shields.io/badge/Project-Academic-success.svg)
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg">
+  <img src="https://img.shields.io/badge/MATLAB-Compatible-blue.svg">
+  <img src="https://img.shields.io/badge/Status-Academic-success.svg">
+</p>
 
 ---
 
-## 📖 Overview
+## 📌 Overview
 
 This project models a four-junction traffic network using:
 
-- Conservation of vehicles  
-- Linear algebraic formulation  
-- Behavioral turning ratio constraint  
-- Discrete-time state-space modeling  
-- Eigenvalue-based stability analysis  
+- ✔ Conservation of vehicles  
+- ✔ Linear algebraic formulation  
+- ✔ Behavioral turning ratio constraint  
+- ✔ Discrete-time state-space modeling  
+- ✔ Eigenvalue-based stability analysis  
 
-The objective is to:
-
-1. Compute steady-state internal traffic flows  
-2. Model gradual traffic redistribution  
-3. Evaluate system stability and convergence  
+The goal is to compute steady-state traffic flows and evaluate whether the network naturally converges to equilibrium.
 
 ---
 
 # 🗺️ Traffic Network Layout
 
-<img src="results/network_layout.png" width="600">
-
-> Place your network image inside the `results/` folder as `network_layout.png`
+<p align="center">
+  <img src="results/problem.png" width="600">
+</p>
 
 ---
 
 # 📘 Part I — Static Traffic Flow Model
 
-## Governing Principle
+## 1️⃣ Governing Principle
 
 At steady state:
 
 \[
-\text{Flow In} = \text{Flow Out}
+\textbf{Flow In = Flow Out}
 \]
 
-Applying conservation at each node:
+Node balance equations:
 
 \[
 x_1 + x_4 = 475
@@ -62,7 +60,7 @@ x_3 + x_4 = 870
 
 ---
 
-## Matrix Formulation
+## 2️⃣ Matrix Formulation
 
 \[
 AX = B
@@ -78,17 +76,15 @@ A =
 \end{bmatrix}
 \]
 
-The system is rank deficient:
-
 \[
 \text{rank}(A) = 3 < 4
 \]
 
-Therefore, an additional behavioral constraint is required.
+Since the matrix is rank deficient, a behavioral constraint is required.
 
 ---
 
-## Turning Ratio Assumption
+## 3️⃣ Turning Ratio Constraint
 
 At node A:
 
@@ -98,23 +94,22 @@ At node A:
 
 ---
 
-## Static Solution
+## ✅ Static Solution
 
-\[
-(x_1, x_2, x_3, x_4)
-=
-(285,\; 370,\; 680,\; 190)
-\]
+| Flow | Value (veh/hr) |
+|------|----------------|
+| x1   | 285 |
+| x2   | 370 |
+| x3   | 680 |
+| x4   | 190 |
 
-These flows:
-
-- Are non-negative  
-- Satisfy conservation  
-- Represent feasible steady-state equilibrium  
+✔ Non-negative  
+✔ Satisfies conservation  
+✔ Unique feasible solution  
 
 ---
 
-## 🔗 Static Model Code
+### 🔗 Static Model Implementation
 
 👉 **[View static_model.m](static_model.m)**
 
@@ -123,11 +118,11 @@ These flows:
 # 📘 Part II — Dynamic Traffic Flow Modeling
 
 The static model assumes instantaneous equilibrium.  
-To model gradual driver adaptation, a discrete-time state-space formulation is introduced.
+To model gradual driver adaptation, a discrete-time state-space formulation is used.
 
 ---
 
-## State Vector
+## 1️⃣ State Vector
 
 \[
 X(k) =
@@ -141,7 +136,7 @@ x_4(k)
 
 ---
 
-## Dynamic Evolution Equation
+## 2️⃣ Dynamic Equation
 
 \[
 X(k+1) = (1-\alpha)X(k) + \alpha(PX(k) + U)
@@ -153,15 +148,13 @@ Rewritten as:
 X(k+1) = AX(k) + \alpha U
 \]
 
-Where:
-
 \[
 A = (1-\alpha)I + \alpha P
 \]
 
 ---
 
-## Model Parameters
+## 3️⃣ Model Parameters
 
 Relaxation parameter:
 
@@ -195,27 +188,18 @@ U =
 
 ---
 
-## Steady-State Dynamic Solution
+## ✅ Dynamic Steady-State Solution
 
-\[
-X^* = (I - A)^{-1} \alpha U
-\]
-
-\[
-(x_1, x_2, x_3, x_4)
-=
-(285,\; 161.13,\; 112.79,\; 263.31)
-\]
+| Flow | Value (veh/hr) |
+|------|----------------|
+| x1   | 285.00 |
+| x2   | 161.13 |
+| x3   | 112.79 |
+| x4   | 263.31 |
 
 ---
 
-## Stability Analysis
-
-For discrete-time systems:
-
-\[
-|\lambda_i| < 1
-\]
+## 📊 Stability Analysis
 
 Eigenvalues:
 0.600
@@ -227,18 +211,16 @@ Eigenvalues:
 Spectral radius:
 
 \[
-\rho(A) = 0.874
+\rho(A) = 0.874 < 1
 \]
 
-Since \(\rho(A) < 1\):
-
-- The system is asymptotically stable  
-- Traffic flows converge to equilibrium  
-- Disturbances decay over time  
+✔ Asymptotically stable  
+✔ Converges to equilibrium  
+✔ Disturbances decay  
 
 ---
 
-## 🔗 Dynamic Model Code
+### 🔗 Dynamic Model Implementation
 
 👉 **[View dynamic_model.m](dynamic_model.m)**
 
@@ -246,15 +228,13 @@ Since \(\rho(A) < 1\):
 
 # 📈 Convergence Simulation
 
-The iterative evolution of traffic flows verifies convergence to equilibrium.
-
-<img src="results/convergence_plot.png" width="600">
-
-> Generated using `convergence_simulation.m`
+<p align="center">
+  <img src="results/convergence_plot.png" width="600">
+</p>
 
 ---
 
-## 🔗 Simulation Code
+### 🔗 Simulation Code
 
 👉 **[View convergence_simulation.m](convergence_simulation.m)**
 
@@ -262,52 +242,10 @@ The iterative evolution of traffic flows verifies convergence to equilibrium.
 
 # ▶️ How to Run
 
-1. Open MATLAB (R2018+ recommended)
-2. Run:
-static_model.m
-dynamic_model.m
-convergence_simulation.m
+```matlab
+static_model
+dynamic_model
+convergence_simulation
 
-
-3. Results will appear in the Command Window  
-4. Convergence plot will be displayed automatically  
-
----
-
-# 📊 Key Insights
-
-### Static Model
-- Based on conservation laws  
-- Requires behavioral constraint  
-- Produces unique feasible solution  
-
-### Dynamic Model
-- Captures gradual redistribution  
-- Enables eigenvalue-based stability analysis  
-- Spectral radius determines convergence rate  
-- System naturally converges  
-
----
-
-# 🧠 Assumptions
-
-- Deterministic routing  
-- Constant turning probabilities  
-- No congestion constraints  
-- No stochastic disturbances  
-
----
-
-# 🚀 Future Work
-
-- Capacity-constrained optimization  
-- Nonlinear congestion-dependent routing  
-- Sensitivity analysis of α  
-- Continuous-time formulation  
-- Validation with real traffic data  
-
----
-
-# 📜 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+Outputs appear in the MATLAB command window.
+The convergence plot will display automatically.
