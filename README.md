@@ -48,10 +48,31 @@ At steady state: **Flow In = Flow Out** at every junction.
 | D    | x₃ + x₄ = 870        |
 
 ### Matrix Formulation
+The system is written in compact form:
 
-![AX=B](https://latex.codecogs.com/png.image?\dpi{120}AX=B)
+AX = B
 
-![A and B](https://latex.codecogs.com/png.image?\dpi{120}A=\begin{bmatrix}1&0&0&1\\1&1&0&0\\0&1&1&0\\0&0&1&1\end{bmatrix},\quad%20B=\begin{bmatrix}475\\655\\1050\\870\end{bmatrix})
+Where
+
+A =
+\[
+\begin{bmatrix}
+1 & 0 & 0 & 1 \\
+1 & 1 & 0 & 0 \\
+0 & 1 & 1 & 0 \\
+0 & 0 & 1 & 1
+\end{bmatrix}
+\]
+
+B =
+\[
+\begin{bmatrix}
+475 \\
+655 \\
+1050 \\
+870
+\end{bmatrix}
+\]
 
 Since `rank(A) = 3 < 4`, the system is rank deficient and has infinitely many solutions without an additional constraint.
 
@@ -59,7 +80,7 @@ Since `rank(A) = 3 < 4`, the system is rank deficient and has infinitely many so
 
 At node A, drivers split according to:
 
-![Turning ratio](https://latex.codecogs.com/png.image?\dpi{120}\frac{x_1}{x_4}=\frac{3}{2})
+x₁ / x₄ = 3 / 2
 
 This behavioral constraint closes the system and yields a unique solution.
 
@@ -84,17 +105,45 @@ The static model assumes instantaneous equilibrium. To model gradual driver adap
 
 ### Dynamic Equation
 
-![Dynamic equation](https://latex.codecogs.com/png.image?\dpi{120}X(k+1)=\left[(1-\alpha)I+\alpha%20P\right]X(k)+\alpha%20U)
+The system evolves as:
+
+X(k+1) = [(1 − α)I + αP] X(k) + αU
+
+Where:
+
+- α ∈ (0,1) is the relaxation parameter  
+- P is the routing matrix  
+- U is the external inflow vector  
+
+---
 
 ### Model Parameters
 
 **Relaxation parameter:** `α = 0.4`
 
 **Routing matrix:**
+\[
+P =
+\begin{bmatrix}
+0 & 0 & 0 & 0 \\
+0.3 & 0 & 0.35 & 0 \\
+0 & 0.7 & 0 & 0 \\
+0 & 0 & 0.65 & 0
+\end{bmatrix}
+\]
 
-![P matrix](https://latex.codecogs.com/png.image?\dpi{120}P=\begin{bmatrix}0&0&0&0\\0.3&0&0.35&0\\0&0.7&0&0\\0&0&0.65&0\end{bmatrix})
+External inflow:
 
-![U vector](https://latex.codecogs.com/png.image?\dpi{120}U=\begin{bmatrix}285\\0\\0\\190\end{bmatrix})
+\[
+U =
+\begin{bmatrix}
+285 \\
+0 \\
+0 \\
+190
+\end{bmatrix}
+\]
+
 
 ### ✅ Dynamic Steady-State Solution
 
@@ -114,11 +163,16 @@ The static model assumes instantaneous equilibrium. To model gradual driver adap
 | λ₃         | 0.874 |
 | λ₄         | 0.326 |
 
-![Spectral radius](https://latex.codecogs.com/png.image?\dpi{120}\rho(A_d)=0.874<1)
+Spectral radius:
 
-- ✔ Asymptotically stable
-- ✔ All disturbances decay over time
-- ✔ System converges to equilibrium regardless of initial conditions
+ρ(A_d) = 0.874 < 1
+
+Since all eigenvalues satisfy |λᵢ| < 1:
+
+✔ The system is asymptotically stable  
+✔ Disturbances decay over time  
+✔ The network converges to equilibrium for any initial condition  
+
 
 ---
 
